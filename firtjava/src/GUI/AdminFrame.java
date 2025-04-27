@@ -5,11 +5,18 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import BUS.StaffBUS;
@@ -29,7 +37,7 @@ public class AdminFrame extends JFrame {
     private DefaultTableModel tableModel;
     private JTextField txtStaffID, txtStaffName, txtSalary, txtWorkYears, txtJob, txtSearch;
     private JComboBox<String> cmbSearchType;
-    private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnSearch, btnReset;
+    private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnSearch, btnReset, btnExport, btnImport;
 
     public AdminFrame() {
         staffBUS = new StaffBUS();
@@ -89,10 +97,14 @@ public class AdminFrame extends JFrame {
         btnUpdate = new JButton("Sửa");
         btnDelete = new JButton("Xóa");
         btnClear = new JButton("Clear");
+        btnExport = new JButton("Export");
+        btnImport = new JButton("Import");
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnDelete);
         buttonPanel.add(btnClear);
+        buttonPanel.add(btnExport);
+        buttonPanel.add(btnImport);
 
         // Bảng hiển thị danh sách nhân viên
         String[] columns = { "Mã nhân viên", "Tên nhân viên", "Lương", "Năm kinh nghiệm", "Công việc" };
@@ -233,6 +245,74 @@ public class AdminFrame extends JFrame {
             txtSearch.setText("");
             cmbSearchType.setSelectedIndex(0);
             loadStaffData();
+        });
+
+        // Sự kiện cho nút Export
+        btnExport.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file CSV");
+            fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                if (!file.getName().toLowerCase().endsWith(".csv")) {
+                    file = new File(file.getParentFile(), file.getName() + ".csv");
+                }
+                try (FileWriter writer = new FileWriter(file)) {
+                    writer.write("staffID,staffName,salary,workYears,job\n");
+                    List<Staff> staffList = staffBUS.getAllStaff();
+                    for (Staff staff : staffList) {
+                        writer.write(String.format("%d,%s,%.2f,%d,%s\n",
+                                staff.getStaffID(),
+                                staff.getStaffName().replace(",", ""),
+                                staff.getSalary(),
+                                staff.getWorkYears(),
+                                staff.getJob().replace(",", "")));
+                    }
+                    JOptionPane.showMessageDialog(this, "Xuất file CSV thành công!");
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Error exporting file: " + ex.getMessage());
+                }
+            }
+        });
+
+        // Sự kiện cho nút Import
+        btnImport.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn file CSV để nhập");
+            fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
+            if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    List<Staff> staffList = new ArrayList<>();
+                    String line = reader.readLine(); // Bỏ qua header
+                    while ((line = reader.readLine()) != null) {
+                        String[] data = line.split(",");
+                        if (data.length != 5) {
+                            throw new IllegalArgumentException("Định dạng dòng không hợp lệ: " + line);
+                        }
+                        Staff staff = new Staff();
+                        try {
+                            staff.setStaffID(Integer.parseInt(data[0]));
+                        } catch (NumberFormatException ex) {
+                            staff.setStaffID(0); // Đặt ID = 0 để thêm mới
+                        }
+                        staff.setStaffName(data[1]);
+                        staff.setSalary(Double.parseDouble(data[2]));
+                        staff.setWorkYears(Integer.parseInt(data[3]));
+                        staff.setJob(data[4]);
+                        staffList.add(staff);
+                    }
+                    staffBUS.importStaff(staffList);
+                    JOptionPane.showMessageDialog(this, "Nhập file CSV thành công!");
+                    loadStaffData();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Error importing file: " + ex.getMessage());
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, "Error in file format: " + ex.getMessage());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error importing staff: " + ex.getMessage());
+                }
+            }
         });
     }
 

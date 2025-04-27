@@ -59,4 +59,14 @@ public class StaffBUS {
         }
         return staffDAO.searchStaff(searchType, keyword.trim());
     }
+
+    public void importStaff(List<Staff> staffList) {
+        for (Staff staff : staffList) {
+            if (staff.getStaffID() > 0 && getStaffByID(staff.getStaffID()) != null) {
+                updateStaff(staff); // Cập nhật nếu nhân viên đã tồn tại
+            } else {
+                addStaff(staff); // Thêm mới nếu không tồn tại
+            }
+        }
+    }
 }
