@@ -16,6 +16,9 @@ public class StaffDAO {
     private static final String INSERT_STAFF = "INSERT INTO Staff (staffName, Salary, workYears, Job) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_STAFF = "UPDATE Staff SET staffName = ?, Salary = ?, workYears = ?, Job = ? WHERE staffID = ?";
     private static final String DELETE_STAFF = "DELETE FROM Staff WHERE staffID = ?";
+    private static final String SEARCH_BY_ID = "SELECT * FROM Staff WHERE staffID = ?";
+    private static final String SEARCH_BY_NAME = "SELECT * FROM Staff WHERE staffName LIKE ?";
+    private static final String SEARCH_BY_JOB = "SELECT * FROM Staff WHERE Job LIKE ?";
 
     // Lấy tất cả nhân viên
     public List<Staff> getAllStaff() {
@@ -120,5 +123,56 @@ public class StaffDAO {
             JDBCUtil.closeConnection(connection);
         }
         return staff;
+    }
+
+    // Tìm kiếm nhân viên theo kiểu (ID, tên, hoặc công việc)
+    public List<Staff> searchStaff(String searchType, String keyword) {
+        List<Staff> staffList = new ArrayList<>();
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllStaff();
+        }
+        Connection connection = JDBCUtil.getConnection();
+        if (connection == null) {
+            throw new RuntimeException("Cannot connect to database");
+        }
+        String query;
+        switch (searchType) {
+            case "ID":
+                query = SEARCH_BY_ID;
+                break;
+            case "Tên":
+                query = SEARCH_BY_NAME;
+                break;
+            case "Công việc":
+                query = SEARCH_BY_JOB;
+                break;
+            default:
+                throw new IllegalArgumentException("Kiểu tìm kiếm không hợp lệ: " + searchType);
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            if (searchType.equals("ID")) {
+                try {
+                    preparedStatement.setInt(1, Integer.parseInt(keyword));
+                } catch (NumberFormatException e) {
+                    return staffList; // Trả về danh sách rỗng nếu ID không hợp lệ
+                }
+            } else {
+                preparedStatement.setString(1, "%" + keyword.trim() + "%");
+            }
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                int staffID = rs.getInt("staffID");
+                String staffName = rs.getString("staffName");
+                double salary = rs.getDouble("Salary");
+                int workYears = rs.getInt("workYears");
+                String job = rs.getString("Job");
+                staffList.add(new Staff(staffID, staffName, salary, workYears, job));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching staff: " + e.getMessage(), e);
+        } finally {
+            JDBCUtil.closeConnection(connection);
+        }
+        return staffList;
     }
 }
