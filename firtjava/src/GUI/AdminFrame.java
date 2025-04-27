@@ -47,32 +47,32 @@ public class AdminFrame extends JFrame {
         JPanel inputPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        inputPanel.add(new JLabel("Staff ID:"));
+        inputPanel.add(new JLabel("Mã Nhân viên:"));
         txtStaffID = new JTextField();
         txtStaffID.setEditable(false);
         inputPanel.add(txtStaffID);
 
-        inputPanel.add(new JLabel("Staff Name:"));
+        inputPanel.add(new JLabel("Tên các nhân viên:"));
         txtStaffName = new JTextField();
         inputPanel.add(txtStaffName);
 
-        inputPanel.add(new JLabel("Salary:"));
+        inputPanel.add(new JLabel("lương:"));
         txtSalary = new JTextField();
         inputPanel.add(txtSalary);
 
-        inputPanel.add(new JLabel("Work Years:"));
+        inputPanel.add(new JLabel("Năm kinh nghiệm:"));
         txtWorkYears = new JTextField();
         inputPanel.add(txtWorkYears);
 
-        inputPanel.add(new JLabel("Job:"));
+        inputPanel.add(new JLabel("công việc:"));
         txtJob = new JTextField();
         inputPanel.add(txtJob);
 
         // Panel chứa các nút
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        btnAdd = new JButton("Add");
-        btnUpdate = new JButton("Update");
-        btnDelete = new JButton("Delete");
+        btnAdd = new JButton("Thêm");
+        btnUpdate = new JButton("Sửa");
+        btnDelete = new JButton("Xóa");
         btnClear = new JButton("Clear");
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
@@ -80,7 +80,7 @@ public class AdminFrame extends JFrame {
         buttonPanel.add(btnClear);
 
         // Bảng hiển thị danh sách nhân viên
-        String[] columns = { "Staff ID", "Staff Name", "Salary", "Work Years", "Job" };
+        String[] columns = { "Mã nhân viên", "Tên nhân viên", "Lương", "Năm kinh nghiệm", "công việc" };
         tableModel = new DefaultTableModel(columns, 0);
         staffTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(staffTable);
@@ -115,7 +115,7 @@ public class AdminFrame extends JFrame {
                 staff.setWorkYears(Integer.parseInt(txtWorkYears.getText()));
                 staff.setJob(txtJob.getText());
                 staffBUS.addStaff(staff);
-                JOptionPane.showMessageDialog(this, "Staff added successfully!");
+                JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
                 clearFields();
                 loadStaffData();
             } catch (Exception ex) {
@@ -133,7 +133,7 @@ public class AdminFrame extends JFrame {
                 staff.setWorkYears(Integer.parseInt(txtWorkYears.getText()));
                 staff.setJob(txtJob.getText());
                 staffBUS.updateStaff(staff);
-                JOptionPane.showMessageDialog(this, "Staff updated successfully!");
+                JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thành công!");
                 clearFields();
                 loadStaffData();
             } catch (Exception ex) {
@@ -146,14 +146,13 @@ public class AdminFrame extends JFrame {
             try {
                 int staffID = Integer.parseInt(txtStaffID.getText());
                 staffBUS.deleteStaff(staffID);
-                JOptionPane.showMessageDialog(this, "Staff deleted successfully!");
+                JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!");
                 clearFields();
                 loadStaffData();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
         });
-
         // Sự kiện cho nút Clear
         btnClear.addActionListener(e -> clearFields());
     }
@@ -173,7 +172,7 @@ public class AdminFrame extends JFrame {
                 tableModel.addRow(row);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error loading staff data: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading nhân viên data: " + ex.getMessage());
         }
     }
 
