@@ -18,6 +18,7 @@ public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private AdminPanel adminPanel;
     private AccountPanel accountPanel;
+    private String currentPanel;
 
     public MainFrame() {
         initComponents();
@@ -36,7 +37,7 @@ public class MainFrame extends JFrame {
         sidebarPanel.setBackground(new Color(44, 62, 80)); // Màu nền sidebar
 
         // Tiêu đề sidebar
-        JLabel titleLabel = new JLabel("Menu");
+        JLabel titleLabel = new JLabel("Admin Panel");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -76,7 +77,13 @@ public class MainFrame extends JFrame {
         adminPanel = new AdminPanel();
         accountPanel = new AccountPanel();
 
+        // Thiết lập callback để làm mới AccountPanel khi xóa nhân viên
+        adminPanel.setOnStaffDeleted(() -> {
+            accountPanel.refreshData();
+        });
+
         // Hiển thị panel mặc định (Quản lý nhân viên)
+        currentPanel = "staff";
         contentPanel.add(adminPanel, BorderLayout.CENTER);
 
         // Thêm sidebar và content vào frame
@@ -86,11 +93,13 @@ public class MainFrame extends JFrame {
 
     private void showPanel(String panelName) {
         contentPanel.removeAll();
+        currentPanel = panelName;
         switch (panelName) {
             case "staff":
                 contentPanel.add(adminPanel, BorderLayout.CENTER);
                 break;
             case "account":
+                accountPanel.refreshData(); // Làm mới dữ liệu khi chuyển sang AccountPanel
                 contentPanel.add(accountPanel, BorderLayout.CENTER);
                 break;
         }

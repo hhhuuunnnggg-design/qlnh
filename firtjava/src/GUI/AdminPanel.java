@@ -37,11 +37,17 @@ public class AdminPanel extends JPanel {
     private JTextField txtStaffID, txtStaffName, txtSalary, txtWorkYears, txtJob, txtSearch;
     private JComboBox<String> cmbSearchType;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnSearch, btnReset, btnExport, btnImport;
+    private Runnable onStaffDeleted; // Callback để thông báo khi xóa nhân viên
 
     public AdminPanel() {
         staffBUS = new StaffBUS();
         initComponents();
         loadStaffData();
+    }
+
+    // Phương thức để thiết lập callback từ MainFrame
+    public void setOnStaffDeleted(Runnable onStaffDeleted) {
+        this.onStaffDeleted = onStaffDeleted;
     }
 
     private void initComponents() {
@@ -204,11 +210,20 @@ public class AdminPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để xóa!");
                     return;
                 }
-                int staffID = Integer.parseInt(txtStaffID.getText());
-                staffBUS.deleteStaff(staffID);
-                JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!");
-                clearFields();
-                loadStaffData();
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "Xóa nhân viên này sẽ xóa cả tài khoản liên quan. Bạn có chắc muốn tiếp tục?",
+                        "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    int staffID = Integer.parseInt(txtStaffID.getText());
+                    staffBUS.deleteStaff(staffID);
+                    JOptionPane.showMessageDialog(this, "Xóa nhân viên và tài khoản thành công!");
+                    clearFields();
+                    loadStaffData();
+                    // Thông báo cho MainFrame để làm mới các panel khác
+                    if (onStaffDeleted != null) {
+                        onStaffDeleted.run();
+                    }
+                }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Mã nhân viên không hợp lệ!");
             } catch (Exception ex) {
@@ -303,6 +318,10 @@ public class AdminPanel extends JPanel {
                     staffBUS.importStaff(staffList);
                     JOptionPane.showMessageDialog(this, "Nhập file CSV thành công!");
                     loadStaffData();
+                    // Thông báo làm mới các panel khác nếu cần
+                    if (onStaffDeleted != null) {
+                        onStaffDeleted.run();
+                    }
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(this, "Error importing file: " + ex.getMessage());
                 } catch (IllegalArgumentException ex) {

@@ -330,4 +330,11 @@ public class AccountPanel extends JPanel {
         cmbRole.setSelectedIndex(0);
         loadAvailableStaff();
     }
+
+    // Phương thức công khai để làm mới dữ liệu
+    public void refreshData() {
+        clearFields();
+        loadAccountData();
+        loadAvailableStaff();
+    }
 }
