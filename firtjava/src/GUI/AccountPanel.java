@@ -337,4 +337,15 @@ public class AccountPanel extends JPanel {
         loadAccountData();
         loadAvailableStaff();
     }
+
+    public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            AccountPanel accountPanel = new AccountPanel();
+            javax.swing.JFrame frame = new javax.swing.JFrame("Quản lý tài khoản");
+            frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+            frame.add(accountPanel);
+            frame.setSize(800, 600);
+            frame.setVisible(true);
+        });
+    }
 }

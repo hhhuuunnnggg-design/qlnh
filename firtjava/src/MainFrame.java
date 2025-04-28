@@ -12,11 +12,13 @@ import javax.swing.JPanel;
 
 import GUI.AccountPanel;
 import GUI.AdminPanel;
+import GUI.DrinkPanel;
 
 public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private AdminPanel adminPanel;
     private AccountPanel accountPanel;
+    private DrinkPanel drinkPanel;
     private String currentPanel;
 
     public MainFrame() {
@@ -64,8 +66,17 @@ public class MainFrame extends JFrame {
         accountButton.setFocusPainted(false);
         accountButton.addActionListener(e -> showPanel("account"));
 
+        JButton drinkButton = new JButton("Quản lý đồ uống");
+        drinkButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        drinkButton.setForeground(Color.WHITE);
+        drinkButton.setBackground(new Color(52, 73, 94));
+        drinkButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        drinkButton.setFocusPainted(false);
+        drinkButton.addActionListener(e -> showPanel("drink"));
+
         navPanel.add(staffButton, BorderLayout.NORTH);
         navPanel.add(accountButton, BorderLayout.CENTER);
+        navPanel.add(drinkButton, BorderLayout.SOUTH);
         sidebarPanel.add(navPanel, BorderLayout.CENTER);
 
         // Khu vực nội dung chính
@@ -75,6 +86,7 @@ public class MainFrame extends JFrame {
         // Khởi tạo các panel
         adminPanel = new AdminPanel();
         accountPanel = new AccountPanel();
+        drinkPanel = new DrinkPanel();
 
         // Thiết lập callback để làm mới AccountPanel khi xóa nhân viên
         adminPanel.setOnStaffDeleted(() -> {
@@ -101,9 +113,16 @@ public class MainFrame extends JFrame {
                 accountPanel.refreshData(); // Làm mới dữ liệu khi chuyển sang AccountPanel
                 contentPanel.add(accountPanel, BorderLayout.CENTER);
                 break;
+            case "drink":
+                contentPanel.add(drinkPanel, BorderLayout.CENTER);
+                break;
         }
         contentPanel.revalidate();
         contentPanel.repaint();
     }
 
+    public static void main(String[] args) {
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.setVisible(true);
+    }
 }
