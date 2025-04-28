@@ -59,4 +59,10 @@ public class Staff {
     public void setJob(String job) {
         this.job = job;
     }
+
+    // Override toString để hiển thị staffName trong dropdown
+    @Override
+    public String toString() {
+        return staffName;
+    }
 }

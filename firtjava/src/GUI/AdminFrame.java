@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
@@ -93,7 +94,10 @@ public class AdminFrame extends JFrame {
 
         // Panel chứa các nút
         JPanel buttonPanel = new JPanel(new FlowLayout());
+
         btnAdd = new JButton("Thêm");
+        btnAdd.setBackground(Color.GREEN);
+
         btnUpdate = new JButton("Sửa");
         btnDelete = new JButton("Xóa");
         btnClear = new JButton("Clear");

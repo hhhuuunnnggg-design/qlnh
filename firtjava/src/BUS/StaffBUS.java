@@ -26,6 +26,7 @@ public class StaffBUS {
         if (staff.getWorkYears() < 0) {
             throw new IllegalArgumentException("công năm không được âm");
         }
+
         staffDAO.addStaff(staff);
     }
 
