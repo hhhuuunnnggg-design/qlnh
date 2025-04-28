@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,7 +19,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 import BUS.AccountBUS;
@@ -28,7 +26,7 @@ import BUS.StaffBUS;
 import DTO.Account;
 import DTO.Staff;
 
-public class AccountFrame extends JFrame {
+public class AccountPanel extends JPanel {
     private AccountBUS accountBUS;
     private StaffBUS staffBUS;
     private JTable accountTable;
@@ -40,7 +38,7 @@ public class AccountFrame extends JFrame {
     private JTextField txtSearch;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnSearch, btnReset;
 
-    public AccountFrame() {
+    public AccountPanel() {
         accountBUS = new AccountBUS();
         staffBUS = new StaffBUS();
         initComponents();
@@ -48,10 +46,7 @@ public class AccountFrame extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("Admin - Account Management");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         // Panel tìm kiếm
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -110,13 +105,12 @@ public class AccountFrame extends JFrame {
         buttonPanel.add(btnClear);
 
         // Bảng hiển thị danh sách tài khoản
-        String[] columns = { "Mã tài khoản", "Tên đăng nhập", "Mật khẩu", "Vai trò", "Mã nhân viên" };
+        String[] columns = { "Mã tài khoản", "Tên đăng nhập", "Mật khẩu", "Vai trò", "Mã nhân viên", "Tên nhân viên" };
         tableModel = new DefaultTableModel(columns, 0);
         accountTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(accountTable);
 
         // Layout chính
-        setLayout(new BorderLayout());
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchPanel, BorderLayout.NORTH);
         topPanel.add(inputPanel, BorderLayout.CENTER);
@@ -275,12 +269,14 @@ public class AccountFrame extends JFrame {
             List<Account> accountList = (searchType == null) ? accountBUS.getAllAccounts()
                     : accountBUS.searchAccount(searchType, keyword);
             for (Account account : accountList) {
+                Staff staff = staffBUS.getStaffByID(account.getStaffID());
                 Object[] row = {
                         account.getAccountID(),
                         account.getUsername(),
                         account.getPassword(),
                         account.getRole(),
-                        account.getStaffID()
+                        account.getStaffID(),
+                        staff != null ? staff.getStaffName() : "N/A"
                 };
                 tableModel.addRow(row);
             }
@@ -333,16 +329,5 @@ public class AccountFrame extends JFrame {
         txtPassword.setText("");
         cmbRole.setSelectedIndex(0);
         loadAvailableStaff();
-    }
-
-    @Override
-    public String toString() {
-        return "AccountFrame";
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new AccountFrame().setVisible(true);
-        });
     }
 }

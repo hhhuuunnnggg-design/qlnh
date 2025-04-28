@@ -90,9 +90,16 @@ public class StaffDAO {
         if (connection == null) {
             throw new RuntimeException("Cannot connect to database");
         }
-        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_STAFF)) {
-            preparedStatement.setInt(1, staffID);
-            preparedStatement.executeUpdate();
+        try {
+            // Xóa tài khoản liên quan trước
+            AccountDAO accountDAO = new AccountDAO();
+            accountDAO.deleteAccountByStaffID(staffID);
+
+            // Sau đó xóa nhân viên
+            try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_STAFF)) {
+                preparedStatement.setInt(1, staffID);
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting staff: " + e.getMessage(), e);
         } finally {

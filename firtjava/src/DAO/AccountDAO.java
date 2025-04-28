@@ -20,6 +20,7 @@ public class AccountDAO {
     private static final String SEARCH_BY_USERNAME = "SELECT * FROM Account WHERE username LIKE ?";
     private static final String SEARCH_BY_ROLE = "SELECT * FROM Account WHERE role LIKE ?";
     private static final String CHECK_STAFF_ID = "SELECT COUNT(*) FROM Account WHERE staffID = ?";
+    private static final String DELETE_ACCOUNT_BY_STAFF_ID = "DELETE FROM Account WHERE staffID = ?";
 
     // Lấy tất cả tài khoản
     public List<Account> getAllAccounts() {
@@ -96,6 +97,22 @@ public class AccountDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting account: " + e.getMessage(), e);
+        } finally {
+            JDBCUtil.closeConnection(connection);
+        }
+    }
+
+    // Xóa tài khoản theo staffID
+    public void deleteAccountByStaffID(int staffID) {
+        Connection connection = JDBCUtil.getConnection();
+        if (connection == null) {
+            throw new RuntimeException("Cannot connect to database");
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ACCOUNT_BY_STAFF_ID)) {
+            preparedStatement.setInt(1, staffID);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting account by staffID: " + e.getMessage(), e);
         } finally {
             JDBCUtil.closeConnection(connection);
         }

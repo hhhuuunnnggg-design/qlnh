@@ -18,21 +18,19 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import BUS.StaffBUS;
 import DTO.Staff;
 
-public class AdminFrame extends JFrame {
+public class AdminPanel extends JPanel {
     private StaffBUS staffBUS;
     private JTable staffTable;
     private DefaultTableModel tableModel;
@@ -40,17 +38,14 @@ public class AdminFrame extends JFrame {
     private JComboBox<String> cmbSearchType;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnSearch, btnReset, btnExport, btnImport;
 
-    public AdminFrame() {
+    public AdminPanel() {
         staffBUS = new StaffBUS();
         initComponents();
         loadStaffData();
     }
 
     private void initComponents() {
-        setTitle("Admin - Staff Management");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         // Panel tìm kiếm
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -117,7 +112,6 @@ public class AdminFrame extends JFrame {
         JScrollPane scrollPane = new JScrollPane(staffTable);
 
         // Layout chính
-        setLayout(new BorderLayout());
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchPanel, BorderLayout.NORTH);
         topPanel.add(inputPanel, BorderLayout.CENTER);
@@ -353,11 +347,5 @@ public class AdminFrame extends JFrame {
         txtSalary.setText("");
         txtWorkYears.setText("");
         txtJob.setText("");
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new AdminFrame().setVisible(true);
-        });
     }
 }
