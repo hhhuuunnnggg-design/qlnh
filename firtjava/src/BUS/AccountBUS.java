@@ -87,4 +87,15 @@ public class AccountBUS {
         }
         return accountDAO.searchAccount(searchType, keyword.trim());
     }
+
+    // Phương thức xác thực tài khoản
+    public boolean authenticate(String username, String password) {
+        List<Account> accounts = getAllAccounts();
+        for (Account account : accounts) {
+            if (account.getUsername().equals(username) && account.getPassword().equals(password)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

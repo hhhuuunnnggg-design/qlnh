@@ -367,4 +367,5 @@ public class AdminPanel extends JPanel {
         txtWorkYears.setText("");
         txtJob.setText("");
     }
+
 }
