@@ -135,121 +135,19 @@ public class AccountPanel extends JPanel {
         });
 
         // Sự kiện cho nút Add
-        btnAdd.addActionListener(e -> {
-            try {
-                if (txtUsername.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Tên đăng nhập không được để trống!");
-                    return;
-                }
-                if (txtPassword.getPassword().length == 0) {
-                    JOptionPane.showMessageDialog(this, "Mật khẩu không được để trống!");
-                    return;
-                }
-                if (cmbStaff.getSelectedItem() == null) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên!");
-                    return;
-                }
-                Account account = new Account();
-                account.setUsername(txtUsername.getText());
-                account.setPassword(new String(txtPassword.getPassword()));
-                account.setRole((String) cmbRole.getSelectedItem());
-                account.setStaffID(((Staff) cmbStaff.getSelectedItem()).getStaffID());
-                accountBUS.addAccount(account);
-                JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!");
-                clearFields();
-                loadAccountData();
-                loadAvailableStaff();
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnAdd.addActionListener(e -> addAccount());
 
         // Sự kiện cho nút Update
-        btnUpdate.addActionListener(e -> {
-            try {
-                if (txtAccountID.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản để sửa!");
-                    return;
-                }
-                if (txtUsername.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Tên đăng nhập không được để trống!");
-                    return;
-                }
-                if (txtPassword.getPassword().length == 0) {
-                    JOptionPane.showMessageDialog(this, "Mật khẩu không được để trống!");
-                    return;
-                }
-                if (cmbStaff.getSelectedItem() == null) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên!");
-                    return;
-                }
-                Account account = new Account();
-                account.setAccountID(Integer.parseInt(txtAccountID.getText()));
-                account.setUsername(txtUsername.getText());
-                account.setPassword(new String(txtPassword.getPassword()));
-                account.setRole((String) cmbRole.getSelectedItem());
-                account.setStaffID(((Staff) cmbStaff.getSelectedItem()).getStaffID());
-                accountBUS.updateAccount(account);
-                JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thành công!");
-                clearFields();
-                loadAccountData();
-                loadAvailableStaff();
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Dữ liệu số không hợp lệ!");
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnUpdate.addActionListener(e -> updateAccount());
 
         // Sự kiện cho nút Delete
-        btnDelete.addActionListener(e -> {
-            try {
-                if (txtAccountID.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản để xóa!");
-                    return;
-                }
-                int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa tài khoản này?", "Xác nhận xóa",
-                        JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    int accountID = Integer.parseInt(txtAccountID.getText());
-                    accountBUS.deleteAccount(accountID);
-                    JOptionPane.showMessageDialog(this, "Xóa tài khoản thành công!");
-                    clearFields();
-                    loadAccountData();
-                    loadAvailableStaff();
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Mã tài khoản không hợp lệ!");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnDelete.addActionListener(e -> deleteAccount());
 
         // Sự kiện cho nút Clear
         btnClear.addActionListener(e -> clearFields());
 
         // Sự kiện cho nút Search
-        btnSearch.addActionListener(e -> {
-            try {
-                String keyword = txtSearch.getText().trim();
-                String searchType = (String) cmbSearchType.getSelectedItem();
-                if (keyword.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng nhập từ khóa tìm kiếm!");
-                    return;
-                }
-                if (searchType.equals("ID") && !keyword.matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Mã tài khoản phải là số!");
-                    return;
-                }
-                loadAccountData(searchType, keyword);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error searching account: " + ex.getMessage());
-            }
-        });
+        btnSearch.addActionListener(e -> searchAccount());
 
         // Sự kiện cho nút Reset
         btnReset.addActionListener(e -> {
@@ -329,6 +227,116 @@ public class AccountPanel extends JPanel {
         txtPassword.setText("");
         cmbRole.setSelectedIndex(0);
         loadAvailableStaff();
+    }
+
+    private void searchAccount() {
+        try {
+            String keyword = txtSearch.getText().trim();
+            String searchType = (String) cmbSearchType.getSelectedItem();
+            if (keyword.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập từ khóa tìm kiếm!");
+                return;
+            }
+            if (searchType.equals("ID") && !keyword.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Mã tài khoản phải là số!");
+                return;
+            }
+            loadAccountData(searchType, keyword);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error searching account: " + ex.getMessage());
+        }
+    }
+
+    private void deleteAccount() {
+        try {
+            if (txtAccountID.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản để xóa!");
+                return;
+            }
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa tài khoản này?", "Xác nhận xóa",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                int accountID = Integer.parseInt(txtAccountID.getText());
+                accountBUS.deleteAccount(accountID);
+                JOptionPane.showMessageDialog(this, "Xóa tài khoản thành công!");
+                clearFields();
+                loadAccountData();
+                loadAvailableStaff();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Mã tài khoản không hợp lệ!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void updateAccount() {
+        try {
+            if (txtAccountID.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản để sửa!");
+                return;
+            }
+            if (txtUsername.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên đăng nhập không được để trống!");
+                return;
+            }
+            if (txtPassword.getPassword().length == 0) {
+                JOptionPane.showMessageDialog(this, "Mật khẩu không được để trống!");
+                return;
+            }
+            if (cmbStaff.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên!");
+                return;
+            }
+            Account account = new Account();
+            account.setAccountID(Integer.parseInt(txtAccountID.getText()));
+            account.setUsername(txtUsername.getText());
+            account.setPassword(new String(txtPassword.getPassword()));
+            account.setRole((String) cmbRole.getSelectedItem());
+            account.setStaffID(((Staff) cmbStaff.getSelectedItem()).getStaffID());
+            accountBUS.updateAccount(account);
+            JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thành công!");
+            clearFields();
+            loadAccountData();
+            loadAvailableStaff();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Dữ liệu số không hợp lệ!");
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void addAccount() {
+        try {
+            if (txtUsername.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên đăng nhập không được để trống!");
+                return;
+            }
+            if (txtPassword.getPassword().length == 0) {
+                JOptionPane.showMessageDialog(this, "Mật khẩu không được để trống!");
+                return;
+            }
+            if (cmbStaff.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên!");
+                return;
+            }
+            Account account = new Account();
+            account.setUsername(txtUsername.getText());
+            account.setPassword(new String(txtPassword.getPassword()));
+            account.setRole((String) cmbRole.getSelectedItem());
+            account.setStaffID(((Staff) cmbStaff.getSelectedItem()).getStaffID());
+            accountBUS.addAccount(account);
+            JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!");
+            clearFields();
+            loadAccountData();
+            loadAvailableStaff();
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
     }
 
     // Phương thức công khai để làm mới dữ liệu

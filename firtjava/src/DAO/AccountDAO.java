@@ -11,16 +11,16 @@ import DTO.Account;
 import config.JDBCUtil;
 
 public class AccountDAO {
-    private static final String SELECT_ALL_ACCOUNTS = "SELECT * FROM Account";
-    private static final String SELECT_ACCOUNT_BY_ID = "SELECT * FROM Account WHERE accountID = ?";
-    private static final String INSERT_ACCOUNT = "INSERT INTO Account (username, password, role, staffID) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_ACCOUNT = "UPDATE Account SET username = ?, password = ?, role = ?, staffID = ? WHERE accountID = ?";
-    private static final String DELETE_ACCOUNT = "DELETE FROM Account WHERE accountID = ?";
-    private static final String SEARCH_BY_ID = "SELECT * FROM Account WHERE accountID = ?";
-    private static final String SEARCH_BY_USERNAME = "SELECT * FROM Account WHERE username LIKE ?";
-    private static final String SEARCH_BY_ROLE = "SELECT * FROM Account WHERE role LIKE ?";
-    private static final String CHECK_STAFF_ID = "SELECT COUNT(*) FROM Account WHERE staffID = ?";
-    private static final String DELETE_ACCOUNT_BY_STAFF_ID = "DELETE FROM Account WHERE staffID = ?";
+    private String SELECT_ALL_ACCOUNTS = "SELECT * FROM Account";
+    private String SELECT_ACCOUNT_BY_ID = "SELECT * FROM Account WHERE accountID = ?";
+    private String INSERT_ACCOUNT = "INSERT INTO Account (username, password, role, staffID) VALUES (?, ?, ?, ?)";
+    private String UPDATE_ACCOUNT = "UPDATE Account SET username = ?, password = ?, role = ?, staffID = ? WHERE accountID = ?";
+    private String DELETE_ACCOUNT = "DELETE FROM Account WHERE accountID = ?";
+    private String SEARCH_BY_ID = "SELECT * FROM Account WHERE accountID = ?";
+    private String SEARCH_BY_USERNAME = "SELECT * FROM Account WHERE username LIKE ?";
+    private String SEARCH_BY_ROLE = "SELECT * FROM Account WHERE role LIKE ?";
+    private String CHECK_STAFF_ID = "SELECT COUNT(*) FROM Account WHERE staffID = ?";
+    private String DELETE_ACCOUNT_BY_STAFF_ID = "DELETE FROM Account WHERE staffID = ?";
 
     // Lấy tất cả tài khoản
     public List<Account> getAllAccounts() {

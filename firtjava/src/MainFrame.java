@@ -1,14 +1,15 @@
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import GUI.AccountPanel;
 import GUI.AdminPanel;
@@ -31,10 +32,10 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Sidebar
+        // Sidebar with JScrollPane for scrolling
         JPanel sidebarPanel = new JPanel();
         sidebarPanel.setLayout(new BorderLayout());
-        sidebarPanel.setPreferredSize(new Dimension(200, getHeight()));
+        sidebarPanel.setPreferredSize(new Dimension(180, getHeight())); // Đặt chiều rộng nhỏ hơn cho sidebar
         sidebarPanel.setBackground(new Color(44, 62, 80)); // Màu nền sidebar
 
         // Tiêu đề sidebar
@@ -47,9 +48,10 @@ public class MainFrame extends JFrame {
 
         // Panel chứa các nút điều hướng
         JPanel navPanel = new JPanel();
-        navPanel.setLayout(new BorderLayout());
+        navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS)); // Dùng BoxLayout với chiều dọc
         navPanel.setBackground(new Color(44, 62, 80));
 
+        // Thêm các nút vào sidebar
         JButton staffButton = new JButton("Quản lý nhân viên");
         staffButton.setFont(new Font("Arial", Font.PLAIN, 14));
         staffButton.setForeground(Color.WHITE);
@@ -74,10 +76,14 @@ public class MainFrame extends JFrame {
         drinkButton.setFocusPainted(false);
         drinkButton.addActionListener(e -> showPanel("drink"));
 
-        navPanel.add(staffButton, BorderLayout.NORTH);
-        navPanel.add(accountButton, BorderLayout.CENTER);
-        navPanel.add(drinkButton, BorderLayout.SOUTH);
-        sidebarPanel.add(navPanel, BorderLayout.CENTER);
+        navPanel.add(staffButton);
+        navPanel.add(accountButton);
+        navPanel.add(drinkButton);
+
+        // Bọc panel điều hướng bằng JScrollPane để thanh cuộn xuất hiện khi cần
+        JScrollPane scrollPane = new JScrollPane(navPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); // Luôn hiển thị thanh cuộn dọc
+        sidebarPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Khu vực nội dung chính
         contentPanel = new JPanel(new BorderLayout());

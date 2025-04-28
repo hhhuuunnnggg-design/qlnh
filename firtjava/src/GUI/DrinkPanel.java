@@ -3,6 +3,7 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -95,7 +96,7 @@ public class DrinkPanel extends JPanel {
 
         inputPanel.add(new JLabel("Xem trước:"));
         imgPreview = new JLabel();
-        imgPreview.setPreferredSize(new java.awt.Dimension(200, 20)); // Kích thước xem trước
+        imgPreview.setPreferredSize(new Dimension(200, 20)); // Kích thước xem trước
         inputPanel.add(imgPreview);
 
         // Panel chứa các nút
@@ -103,7 +104,6 @@ public class DrinkPanel extends JPanel {
 
         btnAdd = new JButton("Thêm");
         btnAdd.setBackground(Color.GREEN);
-        btnAdd.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
         btnUpdate = new JButton("Sửa");
         btnDelete = new JButton("Xóa");
@@ -160,102 +160,19 @@ public class DrinkPanel extends JPanel {
         });
 
         // Sự kiện cho nút Add
-        btnAdd.addActionListener(e -> {
-            try {
-                if (txtDrinkName.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Tên đồ uống không được để trống!");
-                    return;
-                }
-                if (!txtDrinkPrice.getText().matches("\\d+(\\.\\d+)?")) {
-                    JOptionPane.showMessageDialog(this, "Giá phải là số hợp lệ!");
-                    return;
-                }
-                Drink drink = new Drink();
-                drink.setDrinkName(txtDrinkName.getText());
-                drink.setDrinkPrice(Double.parseDouble(txtDrinkPrice.getText()));
-                drink.setImg(selectedImgPath);
-                drinkBUS.addDrink(drink);
-                JOptionPane.showMessageDialog(this, "Thêm đồ uống thành công!");
-                clearFields();
-                loadDrinkData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnAdd.addActionListener(e -> addDrink());
 
         // Sự kiện cho nút Update
-        btnUpdate.addActionListener(e -> {
-            try {
-                if (txtDrinkID.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn đồ uống để sửa!");
-                    return;
-                }
-                if (txtDrinkName.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Tên đồ uống không được để trống!");
-                    return;
-                }
-                if (!txtDrinkPrice.getText().matches("\\d+(\\.\\d+)?")) {
-                    JOptionPane.showMessageDialog(this, "Giá phải là số hợp lệ!");
-                    return;
-                }
-                Drink drink = new Drink();
-                drink.setDrinkID(Integer.parseInt(txtDrinkID.getText()));
-                drink.setDrinkName(txtDrinkName.getText());
-                drink.setDrinkPrice(Double.parseDouble(txtDrinkPrice.getText()));
-                drink.setImg(selectedImgPath);
-                drinkBUS.updateDrink(drink);
-                JOptionPane.showMessageDialog(this, "Cập nhật đồ uống thành công!");
-                clearFields();
-                loadDrinkData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnUpdate.addActionListener(e -> updateDrink());
 
         // Sự kiện cho nút Delete
-        btnDelete.addActionListener(e -> {
-            try {
-                if (txtDrinkID.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn đồ uống để xóa!");
-                    return;
-                }
-                int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa đồ uống này?", "Xác nhận xóa",
-                        JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    int drinkID = Integer.parseInt(txtDrinkID.getText());
-                    drinkBUS.deleteDrink(drinkID);
-                    JOptionPane.showMessageDialog(this, "Xóa đồ uống thành công!");
-                    clearFields();
-                    loadDrinkData();
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Mã đồ uống không hợp lệ!");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnDelete.addActionListener(e -> deleteDrink());
 
         // Sự kiện cho nút Clear
         btnClear.addActionListener(e -> clearFields());
 
         // Sự kiện cho nút Search
-        btnSearch.addActionListener(e -> {
-            try {
-                String keyword = txtSearch.getText().trim();
-                String searchType = (String) cmbSearchType.getSelectedItem();
-                if (keyword.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng nhập từ khóa tìm kiếm!");
-                    return;
-                }
-                if (searchType.equals("ID") && !keyword.matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Mã đồ uống phải là số!");
-                    return;
-                }
-                loadDrinkData(searchType, keyword);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error searching drink: " + ex.getMessage());
-            }
-        });
+        btnSearch.addActionListener(e -> searchDrink());
 
         // Sự kiện cho nút Reset
         btnReset.addActionListener(e -> {
@@ -273,9 +190,10 @@ public class DrinkPanel extends JPanel {
             File selectedFile = fileChooser.getSelectedFile();
             selectedImgPath = selectedFile.getAbsolutePath();
             lblImgPath.setText(selectedImgPath);
-            // Hiển thị hình ảnh xem trước
+
+            // Hiển thị hình ảnh xem trước trong imgPreview với kích thước 50x50
             ImageIcon icon = new ImageIcon(selectedImgPath);
-            Image scaledImage = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            Image scaledImage = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH); // Kích thước 50x50
             imgPreview.setIcon(new ImageIcon(scaledImage));
         }
     }
@@ -320,6 +238,97 @@ public class DrinkPanel extends JPanel {
         selectedImgPath = null;
         lblImgPath.setText("Chưa chọn ảnh");
         imgPreview.setIcon(null);
+    }
+
+    private void searchDrink() {
+        try {
+            String keyword = txtSearch.getText().trim();
+            String searchType = (String) cmbSearchType.getSelectedItem();
+            if (keyword.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập từ khóa tìm kiếm!");
+                return;
+            }
+            if (searchType.equals("ID") && !keyword.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Mã đồ uống phải là số!");
+                return;
+            }
+            loadDrinkData(searchType, keyword);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error searching drink: " + ex.getMessage());
+        }
+    }
+
+    private void deleteDrink() {
+        try {
+            if (txtDrinkID.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn đồ uống để xóa!");
+                return;
+            }
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa đồ uống này?", "Xác nhận xóa",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                int drinkID = Integer.parseInt(txtDrinkID.getText());
+                drinkBUS.deleteDrink(drinkID);
+                JOptionPane.showMessageDialog(this, "Xóa đồ uống thành công!");
+                clearFields();
+                loadDrinkData();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Mã đồ uống không hợp lệ!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void updateDrink() {
+        try {
+            if (txtDrinkID.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn đồ uống để sửa!");
+                return;
+            }
+            if (txtDrinkName.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên đồ uống không được để trống!");
+                return;
+            }
+            if (!txtDrinkPrice.getText().matches("\\d+(\\.\\d+)?")) {
+                JOptionPane.showMessageDialog(this, "Giá phải là số hợp lệ!");
+                return;
+            }
+            Drink drink = new Drink();
+            drink.setDrinkID(Integer.parseInt(txtDrinkID.getText()));
+            drink.setDrinkName(txtDrinkName.getText());
+            drink.setDrinkPrice(Double.parseDouble(txtDrinkPrice.getText()));
+            drink.setImg(selectedImgPath);
+            drinkBUS.updateDrink(drink);
+            JOptionPane.showMessageDialog(this, "Cập nhật đồ uống thành công!");
+            clearFields();
+            loadDrinkData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void addDrink() {
+        try {
+            if (txtDrinkName.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên đồ uống không được để trống!");
+                return;
+            }
+            if (!txtDrinkPrice.getText().matches("\\d+(\\.\\d+)?")) {
+                JOptionPane.showMessageDialog(this, "Giá phải là số hợp lệ!");
+                return;
+            }
+            Drink drink = new Drink();
+            drink.setDrinkName(txtDrinkName.getText());
+            drink.setDrinkPrice(Double.parseDouble(txtDrinkPrice.getText()));
+            drink.setImg(selectedImgPath);
+            drinkBUS.addDrink(drink);
+            JOptionPane.showMessageDialog(this, "Thêm đồ uống thành công!");
+            clearFields();
+            loadDrinkData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
     }
 
     // Renderer tùy chỉnh để hiển thị hình ảnh trong bảng

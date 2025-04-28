@@ -141,117 +141,19 @@ public class AdminPanel extends JPanel {
         });
 
         // Sự kiện cho nút Add
-        btnAdd.addActionListener(e -> {
-            try {
-                if (txtStaffName.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!");
-                    return;
-                }
-                if (!txtSalary.getText().matches("\\d+(\\.\\d+)?")) {
-                    JOptionPane.showMessageDialog(this, "Lương phải là số hợp lệ!");
-                    return;
-                }
-                if (!txtWorkYears.getText().matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Năm kinh nghiệm phải là số nguyên!");
-                    return;
-                }
-                Staff staff = new Staff();
-                staff.setStaffName(txtStaffName.getText());
-                staff.setSalary(Double.parseDouble(txtSalary.getText()));
-                staff.setWorkYears(Integer.parseInt(txtWorkYears.getText()));
-                staff.setJob(txtJob.getText());
-                staffBUS.addStaff(staff);
-                JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
-                clearFields();
-                loadStaffData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnAdd.addActionListener(e -> addStaff());
 
         // Sự kiện cho nút Update
-        btnUpdate.addActionListener(e -> {
-            try {
-                if (txtStaffID.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để sửa!");
-                    return;
-                }
-                if (txtStaffName.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!");
-                    return;
-                }
-                if (!txtSalary.getText().matches("\\d+(\\.\\d+)?")) {
-                    JOptionPane.showMessageDialog(this, "Lương phải là số hợp lệ!");
-                    return;
-                }
-                if (!txtWorkYears.getText().matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Năm kinh nghiệm phải là số nguyên!");
-                    return;
-                }
-                Staff staff = new Staff();
-                staff.setStaffID(Integer.parseInt(txtStaffID.getText()));
-                staff.setStaffName(txtStaffName.getText());
-                staff.setSalary(Double.parseDouble(txtSalary.getText()));
-                staff.setWorkYears(Integer.parseInt(txtWorkYears.getText()));
-                staff.setJob(txtJob.getText());
-                staffBUS.updateStaff(staff);
-                JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thành công!");
-                clearFields();
-                loadStaffData();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnUpdate.addActionListener(e -> updateStaff());
 
         // Sự kiện cho nút Delete
-        btnDelete.addActionListener(e -> {
-            try {
-                if (txtStaffID.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để xóa!");
-                    return;
-                }
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "Xóa nhân viên này sẽ xóa cả tài khoản liên quan. Bạn có chắc muốn tiếp tục?",
-                        "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    int staffID = Integer.parseInt(txtStaffID.getText());
-                    staffBUS.deleteStaff(staffID);
-                    JOptionPane.showMessageDialog(this, "Xóa nhân viên và tài khoản thành công!");
-                    clearFields();
-                    loadStaffData();
-                    // Thông báo cho MainFrame để làm mới các panel khác
-                    if (onStaffDeleted != null) {
-                        onStaffDeleted.run();
-                    }
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Mã nhân viên không hợp lệ!");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            }
-        });
+        btnDelete.addActionListener(e -> deleteStaff());
 
         // Sự kiện cho nút Clear
         btnClear.addActionListener(e -> clearFields());
 
         // Sự kiện cho nút Search
-        btnSearch.addActionListener(e -> {
-            try {
-                String keyword = txtSearch.getText().trim();
-                String searchType = (String) cmbSearchType.getSelectedItem();
-                if (keyword.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng nhập từ khóa tìm kiếm!");
-                    return;
-                }
-                if (searchType.equals("ID") && !keyword.matches("\\d+")) {
-                    JOptionPane.showMessageDialog(this, "Mã nhân viên phải là số!");
-                    return;
-                }
-                loadStaffData(searchType, keyword);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error searching staff: " + ex.getMessage());
-            }
-        });
+        btnSearch.addActionListener(e -> sreachStaff());
 
         // Sự kiện cho nút Reset
         btnReset.addActionListener(e -> {
@@ -262,34 +164,42 @@ public class AdminPanel extends JPanel {
 
         // Sự kiện cho nút Export
         btnExport.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Chọn nơi lưu file CSV");
-            fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                if (!file.getName().toLowerCase().endsWith(".csv")) {
-                    file = new File(file.getParentFile(), file.getName() + ".csv");
-                }
-                try (FileWriter writer = new FileWriter(file)) {
-                    writer.write("staffID,staffName,salary,workYears,job\n");
-                    List<Staff> staffList = staffBUS.getAllStaff();
-                    for (Staff staff : staffList) {
-                        writer.write(String.format("%d,%s,%.2f,%d,%s\n",
-                                staff.getStaffID(),
-                                staff.getStaffName().replace(",", ""),
-                                staff.getSalary(),
-                                staff.getWorkYears(),
-                                staff.getJob().replace(",", "")));
-                    }
-                    JOptionPane.showMessageDialog(this, "Xuất file CSV thành công!");
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this, "Error exporting file: " + ex.getMessage());
-                }
-            }
+            ExportStaff();
         });
 
         // Sự kiện cho nút Import
-        btnImport.addActionListener(e -> {
+        btnImport.addActionListener(e -> ImportStaff());
+    }
+
+    private void ExportStaff() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn nơi lưu file CSV");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            if (!file.getName().toLowerCase().endsWith(".csv")) {
+                file = new File(file.getParentFile(), file.getName() + ".csv");
+            }
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write("staffID,staffName,salary,workYears,job\n");
+                List<Staff> staffList = staffBUS.getAllStaff();
+                for (Staff staff : staffList) {
+                    writer.write(String.format("%d,%s,%.2f,%d,%s\n",
+                            staff.getStaffID(),
+                            staff.getStaffName().replace(",", ""),
+                            staff.getSalary(),
+                            staff.getWorkYears(),
+                            staff.getJob().replace(",", "")));
+                }
+                JOptionPane.showMessageDialog(this, "Xuất file CSV thành công!");
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error exporting file: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void ImportStaff() {
+        {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Chọn file CSV để nhập");
             fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
@@ -330,7 +240,7 @@ public class AdminPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Error importing staff: " + ex.getMessage());
                 }
             }
-        });
+        }
     }
 
     private void loadStaffData() {
@@ -368,4 +278,109 @@ public class AdminPanel extends JPanel {
         txtJob.setText("");
     }
 
+    private void deleteStaff() {
+        try {
+            if (txtStaffID.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để xóa!");
+                return;
+            }
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Xóa nhân viên này sẽ xóa cả tài khoản liên quan. Bạn có chắc muốn tiếp tục?",
+                    "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                int staffID = Integer.parseInt(txtStaffID.getText());
+                staffBUS.deleteStaff(staffID);
+                JOptionPane.showMessageDialog(this, "Xóa nhân viên và tài khoản thành công!");
+                clearFields();
+                loadStaffData();
+                // Thông báo cho MainFrame để làm mới các panel khác
+                if (onStaffDeleted != null) {
+                    onStaffDeleted.run();
+                }
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Mã nhân viên không hợp lệ!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void updateStaff() {
+        try {
+            if (txtStaffID.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để sửa!");
+                return;
+            }
+            if (txtStaffName.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!");
+                return;
+            }
+            if (!txtSalary.getText().matches("\\d+(\\.\\d+)?")) {
+                JOptionPane.showMessageDialog(this, "Lương phải là số hợp lệ!");
+                return;
+            }
+            if (!txtWorkYears.getText().matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Năm kinh nghiệm phải là số nguyên!");
+                return;
+            }
+            Staff staff = new Staff();
+            staff.setStaffID(Integer.parseInt(txtStaffID.getText()));
+            staff.setStaffName(txtStaffName.getText());
+            staff.setSalary(Double.parseDouble(txtSalary.getText()));
+            staff.setWorkYears(Integer.parseInt(txtWorkYears.getText()));
+            staff.setJob(txtJob.getText());
+            staffBUS.updateStaff(staff);
+            JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thành công!");
+            clearFields();
+            loadStaffData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void sreachStaff() {
+        try {
+            String keyword = txtSearch.getText().trim();
+            String searchType = (String) cmbSearchType.getSelectedItem();
+            if (keyword.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập từ khóa tìm kiếm!");
+                return;
+            }
+            if (searchType.equals("ID") && !keyword.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Mã nhân viên phải là số!");
+                return;
+            }
+            loadStaffData(searchType, keyword);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error searching staff: " + ex.getMessage());
+        }
+    }
+
+    private void addStaff() {
+        try {
+            if (txtStaffName.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!");
+                return;
+            }
+            if (!txtSalary.getText().matches("\\d+(\\.\\d+)?")) {
+                JOptionPane.showMessageDialog(this, "Lương phải là số hợp lệ!");
+                return;
+            }
+            if (!txtWorkYears.getText().matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Năm kinh nghiệm phải là số nguyên!");
+                return;
+            }
+            Staff staff = new Staff();
+            staff.setStaffName(txtStaffName.getText());
+            staff.setSalary(Double.parseDouble(txtSalary.getText()));
+            staff.setWorkYears(Integer.parseInt(txtWorkYears.getText()));
+            staff.setJob(txtJob.getText());
+            staffBUS.addStaff(staff);
+            JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
+            clearFields();
+            loadStaffData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
 }
